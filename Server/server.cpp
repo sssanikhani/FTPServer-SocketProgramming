@@ -69,18 +69,8 @@ string get_command(string input, int &pos)
 
 string get_value(string input, int &pos)
 {
-    string value = "";
-    while (input[pos] == SPACE)
-        pos++;
-
-    while (TRUE)
-    {
-        if (input[pos] < ZERO || input[pos] > Z)
-            break;
-        value += input[pos];
-        pos++;
-    }
-    return value;
+    vector<string> input_parts = split(input);
+    return input_parts[1];
 }
 
 void handle_input(string input, vector<vector<string>> &clients, vector<vector<string>> enrolled_users, int client_id, int client_sd)
@@ -90,17 +80,18 @@ void handle_input(string input, vector<vector<string>> &clients, vector<vector<s
     string command;
     string value;
     int pos = 0;
+
+    cout << input << endl;
+
     //Enter fd
     if (clients[client_id][0] == "")
         clients[client_id][0] = to_string(client_sd);
 
     command = get_command(input, pos);
-    cout << command << endl;
     if (command == USER)
     {
         message = "331: User name okay, need password.\n";
         value = get_value(input, pos);
-        cout << value << endl;
         clients[client_id][1] = value;
         //send(client_sd, message, strlen(message), 0);
     }
@@ -167,7 +158,7 @@ int main()
 
     vector<vector<string>> enrolled_users(0, vector<string>(4, ""));
 
-    ifstream config_file("config.json", ifstream::binary);
+    ifstream config_file("Server/config.json", ifstream::binary);
 
     string content((std::istreambuf_iterator<char>(config_file)), (std::istreambuf_iterator<char>()));
 
@@ -217,6 +208,8 @@ int main()
     }
 
     listen(sockfd, MAX_CLIENTS);
+
+    cout << "Server Started Running on port " << PORT << endl;
 
     while (TRUE)
     {
