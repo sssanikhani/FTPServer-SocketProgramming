@@ -57,3 +57,7 @@ dkms.conf
 # IDE configuration files
 .vscode/
 .idea/
+
+# Project specified files
+/Server/server
+/Client/client
