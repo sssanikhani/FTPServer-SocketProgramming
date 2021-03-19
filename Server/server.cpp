@@ -7,8 +7,9 @@
 #include <arpa/inet.h> //close
 #include <sys/time.h>
 #include <fstream>
-#include "../json/single_include/nlohmann/json.hpp"
 #include <sstream>
+#include "../json/single_include/nlohmann/json.hpp"
+#include "../Utils/utils.hpp"
 
 #define PORT 3000
 #define MAX_CLIENTS 20
@@ -62,18 +63,8 @@ bool check_username_password(vector<vector<string>> &clients, vector<vector<stri
 
 string get_command(string input, int &pos)
 {
-    string command = "";
-    while (input[pos] == SPACE)
-        pos++;
-
-    while (input[pos] != SPACE)
-    {
-        if (input[pos] < ZERO || input[pos] > Z)
-            break;
-        command += input[pos];
-        pos++;
-    }
-    return command;
+    vector<string> input_parts = split(input);
+    return input_parts[0];
 }
 
 string get_value(string input, int &pos)
