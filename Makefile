@@ -6,19 +6,19 @@ UTILS_DIR = Utils/
 all: server client
 
 server: server.o utils.o
-	$(CC) -w -o $(SERVER_DIR)server $(SERVER_DIR)server.o $(UTILS_DIR)utils.o
+	$(CC) -o $(SERVER_DIR)server $(SERVER_DIR)server.o $(UTILS_DIR)utils.o
 
 server.o: utils.o
-	$(CC) -w -c $(SERVER_DIR)server.cpp -o $(SERVER_DIR)server.o
+	$(CC) -c $(SERVER_DIR)server.cpp -o $(SERVER_DIR)server.o
 
 client: client.o utils.o
-	$(CC) -w -o $(CLIENT_DIR)client $(CLIENT_DIR)client.o $(UTILS_DIR)utils.o
+	$(CC) -o $(CLIENT_DIR)client $(CLIENT_DIR)client.o $(UTILS_DIR)utils.o
 
 client.o:
-	$(CC) -w -c $(CLIENT_DIR)client.cpp -o $(CLIENT_DIR)client.o
+	$(CC) -c $(CLIENT_DIR)client.cpp -o $(CLIENT_DIR)client.o
 
 utils.o:
-	$(CC) -w -c $(UTILS_DIR)utils.cpp -o $(UTILS_DIR)utils.o
+	$(CC) -c $(UTILS_DIR)utils.cpp -o $(UTILS_DIR)utils.o
 
 
 clean:
