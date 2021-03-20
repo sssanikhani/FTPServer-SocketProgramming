@@ -5,20 +5,23 @@ UTILS_DIR = Utils/
 
 all: server client
 
-server: server.o utils.o
-	$(CC) -o $(SERVER_DIR)server $(SERVER_DIR)server.o $(UTILS_DIR)utils.o
+server: server.o utils.o database.o
+	$(CC) -std=c++11 -o $(SERVER_DIR)server $(SERVER_DIR)server.o $(SERVER_DIR)database.o $(UTILS_DIR)utils.o
 
-server.o: utils.o
-	$(CC) -c $(SERVER_DIR)server.cpp -o $(SERVER_DIR)server.o
+server.o: utils.o database.o
+	$(CC) -std=c++11 -c $(SERVER_DIR)server.cpp -o $(SERVER_DIR)server.o
 
 client: client.o utils.o
-	$(CC) -o $(CLIENT_DIR)client $(CLIENT_DIR)client.o $(UTILS_DIR)utils.o
+	$(CC) -std=c++11 -o $(CLIENT_DIR)client $(CLIENT_DIR)client.o $(UTILS_DIR)utils.o
 
 client.o:
-	$(CC) -c $(CLIENT_DIR)client.cpp -o $(CLIENT_DIR)client.o
+	$(CC) -std=c++11 -c $(CLIENT_DIR)client.cpp -o $(CLIENT_DIR)client.o
 
 utils.o:
-	$(CC) -c $(UTILS_DIR)utils.cpp -o $(UTILS_DIR)utils.o
+	$(CC) -std=c++11 -c $(UTILS_DIR)utils.cpp -o $(UTILS_DIR)utils.o
+
+database.o:
+	$(CC) -std=c++11 -c $(SERVER_DIR)DataBase.cpp -o $(SERVER_DIR)database.o
 
 
 clean:
