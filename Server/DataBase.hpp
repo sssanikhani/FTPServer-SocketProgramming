@@ -1,7 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 #include "User.hpp"
@@ -18,10 +18,10 @@ public:
         static std::vector<User> get_all();
 
     private:
-        static std::map<std::string, User> users;
+        static std::unordered_map<std::string, User> users;
     };
 };
 
-std::map<std::string, User> users;
+std::unordered_map<std::string, User> users;
 
 #endif
