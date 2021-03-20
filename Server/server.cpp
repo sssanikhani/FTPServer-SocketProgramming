@@ -29,6 +29,7 @@ bool login_user(vector<vector<string>> &clients, vector<vector<string>> enrolled
     for (int i = 0; i < enrolled_users.size(); i++)
     {
     }
+    return false;
 }
 
 int check_username(vector<vector<string>> enrolled_users, string username)
@@ -61,13 +62,13 @@ bool check_username_password(vector<vector<string>> &clients, vector<vector<stri
     return false;
 }
 
-string get_command(string input, int &pos)
+string get_command(string input)
 {
     vector<string> input_parts = split(input);
     return input_parts[0];
 }
 
-string get_value(string input, int &pos)
+string get_value(string input)
 {
     vector<string> input_parts = split(input);
     return input_parts[1];
@@ -75,7 +76,7 @@ string get_value(string input, int &pos)
 
 void handle_input(string input, vector<vector<string>> &clients, vector<vector<string>> enrolled_users, int client_id, int client_sd)
 {
-    char *message;
+    string message;
     int user_row = 0;
     string command;
     string value;
@@ -87,17 +88,16 @@ void handle_input(string input, vector<vector<string>> &clients, vector<vector<s
     if (clients[client_id][0] == "")
         clients[client_id][0] = to_string(client_sd);
 
-    command = get_command(input, pos);
+    command = get_command(input);
     if (command == USER)
     {
         message = "331: User name okay, need password.\n";
-        value = get_value(input, pos);
+        value = get_value(input);
         clients[client_id][1] = value;
-        //send(client_sd, message, strlen(message), 0);
     }
     else if (command == PASSWORD)
     {
-        value = get_value(input, pos);
+        value = get_value(input);
         clients[client_id][2] = value;
         if (check_username_password(clients, enrolled_users, client_id))
         {
@@ -114,7 +114,7 @@ void handle_input(string input, vector<vector<string>> &clients, vector<vector<s
     {
         message = "501: Syntax error in parameters or arguments.\n";
     }
-    send(client_sd, message, strlen(message), 0);
+    send(client_sd, message.c_str(), message.length(), 0);
     cout << clients[client_id][0] << "  " << clients[client_id][1] << "  " << clients[client_id][2] << endl;
 }
 
@@ -246,8 +246,8 @@ int main()
 
             printf("New connection , socket fd is %d , ip is : %s , port : %d  \n", new_socket, inet_ntoa(server.sin_addr), ntohs(server.sin_port));
 
-            char *message = "You are now connected \nEnter your Username:\n";
-            if (send(new_socket, message, strlen(message), 0) != strlen(message))
+            string message = "You are now connected \nEnter your Username:\n";
+            if (send(new_socket, message.c_str(), message.length(), 0) != message.length())
             {
                 perror("send");
             }
