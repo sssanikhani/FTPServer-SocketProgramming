@@ -25,7 +25,7 @@ public:
     {
     public:
         static int bind_socket_to_user(std::string username, int sd);
-        static int authenticate(string username, int sd);
+        static int authenticate(std::string username, int sd);
         static bool is_authenticated(int sd);
         static bool is_bound(int sd);
         static std::string get_username(int sd);
