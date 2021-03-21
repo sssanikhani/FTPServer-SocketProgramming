@@ -31,7 +31,7 @@ private:
     static std::string retr(std::string request, int sd);
     static std::string help(std::string request, int sd);
     static std::string quit(std::string request, int sd);
-    static std::string incorrect(std::string request, int sd);
+    static std::string incorrect();
 
 
 };

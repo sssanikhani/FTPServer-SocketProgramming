@@ -1,44 +1,56 @@
 #include "CommandHandler.hpp"
 #include "DataBase.hpp"
 #include "utils.hpp"
+#include "Responses.hpp"
 #include <string>
 #include <unordered_map>
 using namespace std;
 
 string CommandHandler::handle(string request, int sd)
 {
+    if (split(request).size() < 1)
+        return incorrect();
+
     string command = split(request)[0];
 
     if (command == USER_COMMAND)
-        user(request, sd);
+        return user(request, sd);
     else if (command == PASS_COMMAND)
-        pass(request, sd);
+        return pass(request, sd);
     else if (command == PWD_COMMAND)
-        pwd(request, sd);
+        return pwd(request, sd);
     else if (command == MKD_COMMAND)
-        mkd(request, sd);
+        return mkd(request, sd);
     else if (command == DELE_COMMAND)
-        dele(request, sd);
+        return dele(request, sd);
     else if (command == LS_COMMAND)
-        ls(request, sd);
+        return ls(request, sd);
     else if (command == CWD_COMMAND)
-        cwd(request, sd);
+        return cwd(request, sd);
     else if (command == RENAME_COMMAND)
-        rename(request, sd);
+        return rename(request, sd);
     else if (command == RETR_COMMAND)
-        retr(request, sd);
+        return retr(request, sd);
     else if (command == HELP_COMMAND)
-        help(request, sd);
+        return help(request, sd);
     else if (command == QUIT_COMMAND)
-        quit(request, sd);
+        return quit(request, sd);
     else
-        incorrect(request, sd);
+        return incorrect();
 }
 
 string CommandHandler::user(string request, int sd)
 {
     // user <username>
-    // TODO: user command
+    if (split(request).size() < 2) return incorrect();
+    string username = split(request)[1];
+
+    if (!DataBase::UserManager::exists(username))
+        return Responses::INVALID_USER_PASS;
+
+    DataBase::ClientManager::bind_socket_to_user(username, sd);
+    return Responses::USER_OKAY;
+
 }
 
 string CommandHandler::pass(string request, int sd)
@@ -75,6 +87,8 @@ string CommandHandler::ls(string request, int sd)
 string CommandHandler::cwd(string request, int sd)
 {
     // cwd <path>
+    // cwd ..
+    // cwd
     // TODO: cwd command
 }
 
@@ -102,7 +116,7 @@ string CommandHandler::quit(string request, int sd)
     // TODO: quit command
 }
 
-string CommandHandler::incorrect(string request, int sd)
+string CommandHandler::incorrect()
 {
     // <!incorrect command>
     // TODO: incorrect command
