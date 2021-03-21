@@ -7,70 +7,32 @@ using namespace std;
 
 string CommandHandler::handle(string request, int sd)
 {
-
     string command = split(request)[0];
 
     if (command == USER_COMMAND)
-    {
-        // user <username>
         user(request, sd);
-    }
     else if (command == PASS_COMMAND)
-    {
-        // pass <password>
         pass(request, sd);
-    }
     else if (command == PWD_COMMAND)
-    {
-        // pwd
         pwd(request, sd);
-    }
     else if (command == MKD_COMMAND)
-    {
-        // mkd <path>
         mkd(request, sd);
-    }
     else if (command == DELE_COMMAND)
-    {
-        // dele -f <file_path>
-        // dele -d <directory_path>
         dele(request, sd);
-    }
     else if (command == LS_COMMAND)
-    {
-        // ls
         ls(request, sd);
-    }
     else if (command == CWD_COMMAND)
-    {
-        // cwd <path>
         cwd(request, sd);
-    }
     else if (command == RENAME_COMMAND)
-    {
-        // rename <from> <to>
         rename(request, sd);
-    }
     else if (command == RETR_COMMAND)
-    {
-        // retr <name>
         retr(request, sd);
-    }
     else if (command == HELP_COMMAND)
-    {
-        // help
         help(request, sd);
-    }
     else if (command == QUIT_COMMAND)
-    {
-        // quit
         quit(request, sd);
-    }
     else
-    {
-        // Incorrect Command
         incorrect(request, sd);
-    }
 }
 
 string CommandHandler::user(string request, int sd)
