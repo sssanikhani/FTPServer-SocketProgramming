@@ -7,50 +7,68 @@ using namespace std;
 
 string CommandHandler::handle(string request, int sd)
 {
-    
-    unordered_map<string, int> commands_map({
-        {USER_COMMAND, 0},
-        {PASS_COMMAND, 1},
-        {PWD_COMMAND, 2},
-        {MKD_COMMAND, 3},
-        {DELE_COMMAND, 4},
-        {LS_COMMAND, 5},
-        {CWD_COMMAND, 6},
-        {RENAME_COMMAND, 7},
-        {RETR_COMMAND, 8},
-        {HELP_COMMAND, 9},
-        {QUIT_COMMAND, 10}
-    });
 
     string command = split(request)[0];
-    if (commands_map.find(command) == commands_map.end()) {
-        // Incorrect Command
-        return;
-    }
 
-    switch (commands_map[command])
+    if (command == USER_COMMAND)
     {
-    case commands_map[USER_COMMAND]:
-        break;
-    case commands_map[PASS_COMMAND]:
-        break;
-    case commands_map[PWD_COMMAND]:
-        break;
-    case commands_map[MKD_COMMAND]:
-        break;
-    case commands_map[DELE_COMMAND]:
-        break;
-    case commands_map[LS_COMMAND]:
-        break;
-    case commands_map[CWD_COMMAND]:
-        break;
-    case commands_map[RENAME_COMMAND]:
-        break;
-    case commands_map[RETR_COMMAND]:
-        break;
-    case commands_map[HELP_COMMAND]:
-        break;
-    case commands_map[QUIT_COMMAND]:
-        break;
+        // user <username>
+        // TODO: USER_COMMAND
+    }
+    else if (command == PASS_COMMAND)
+    {
+        // pass <password>
+        // TODO: PASS_COMMAND
+    }
+    else if (command == PWD_COMMAND)
+    {
+        // pwd
+        // TODO: PWD_COMMAND
+    }
+    else if (command == MKD_COMMAND)
+    {
+        // mkd <path>
+        // TODO: MKD_COMMAND
+    }
+    else if (command == DELE_COMMAND)
+    {
+        // dele -f <file_path>
+        // dele -d <directory_path>
+        // TODO: DELE_COMMAND
+    }
+    else if (command == LS_COMMAND)
+    {
+        // ls
+        // TODO: LS_COMMAND
+    }
+    else if (command == CWD_COMMAND)
+    {
+        // cwd <path>
+        // TODO: CWD_COMMAND
+    }
+    else if (command == RENAME_COMMAND)
+    {
+        // rename <from> <to>
+        // TODO: RENAME_COMMAND
+    }
+    else if (command == RETR_COMMAND)
+    {
+        // retr <name>
+        // TODO: RETR_COMMAND
+    }
+    else if (command == HELP_COMMAND)
+    {
+        // help
+        // TODO: HELP_COMMAND
+    }
+    else if (command == QUIT_COMMAND)
+    {
+        // quit 
+        // TODO: QUIT_COMMAND
+    }
+    else
+    {
+        // Incorrect Command
+        // TODO: Incorrect Command
     }
 }
