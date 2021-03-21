@@ -6,8 +6,13 @@
 class User
 {
 public:
-    User(std::string username, std::string password, int max_size, bool is_admin);
-    void clear();
+    User(std::string _username, std::string _password, int max_size, bool _is_admin);
+    std::string get_username() { return this->username; }
+    int get_remaining_size() { return this->remaining_size; }
+    bool is_administrator() { return this->is_admin; }
+    void set_username(std::string _username) { this->username = _username; }
+    void set_password(std::string _password) { this->password = _password; }
+    bool is_valid_password(std::string _password) { return this->password == _password; }
 
 private:
     std::string username;

@@ -2,10 +2,10 @@
 #include <iostream>
 using namespace std;
 
-User::User(string username, string password, int max_size, bool is_admin)
+User::User(string _username, string _password, int max_size, bool _is_admin)
 {
-    this->username = username;
-    this->password = password;
+    this->username = _username;
+    this->password = _password;
     this->remaining_size = max_size;
-    this->is_admin = is_admin;
+    this->is_admin = _is_admin;
 }
