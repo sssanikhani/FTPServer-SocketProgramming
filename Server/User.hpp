@@ -7,6 +7,8 @@ class User
 {
 public:
     User(std::string _username, std::string _password, int max_size, bool _is_admin);
+    User();
+    User(User& u);
     std::string get_username() { return this->username; }
     int get_remaining_size() { return this->remaining_size; }
     bool is_administrator() { return this->is_admin; }
