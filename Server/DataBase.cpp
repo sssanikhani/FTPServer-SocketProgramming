@@ -6,11 +6,14 @@
 #include <unistd.h>
 using namespace std;
 
+unordered_map<string, User> DataBase::UserManager::users;
+unordered_map<int, string> DataBase::ClientManager::socket_username_map;
+unordered_map<int, bool> DataBase::ClientManager::socket_authentication;
+
 User &DataBase::UserManager::get(string username)
 {
     if (exists(username))
         return users[username];
-    return;
 }
 
 User &DataBase::UserManager::add(User user)

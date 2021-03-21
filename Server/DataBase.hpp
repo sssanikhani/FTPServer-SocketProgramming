@@ -37,8 +37,4 @@ public:
     };
 };
 
-std::unordered_map<std::string, User> DataBase::UserManager::users;
-std::unordered_map<int, std::string> DataBase::ClientManager::socket_username_map;
-std::unordered_map<int, bool> DataBase::ClientManager::socket_authentication;
-
 #endif
