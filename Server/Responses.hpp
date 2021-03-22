@@ -17,6 +17,7 @@ public:
     static const std::string LIST_TRANSFER;
     static const std::string SUCCESSFUL_CHANGE;
     static const std::string SUCCESSFUL_DOWNLOAD;
+    static const std::string HELP;
     static const std::string SUCCESSFUL_QUIT;
     static const std::string NEED_LOGIN;
     static const std::string PARAMS_ERROR;
@@ -40,5 +41,18 @@ const std::string Responses::NEED_LOGIN = "332: Need account for login.";
 const std::string Responses::PARAMS_ERROR = "501: Syntax error in parameters or arguments.";
 const std::string Responses::ERROR = "500: Error";
 const std::string Responses::NOT_ENOUGH_SIZE = "425: Can't open data connection.";
+const std::string Responses::HELP = 
+    "214\n"
+    + "user [name], Its argument is used to specify the user's string. It's used for user authentication.\n"
+    + "pass [password], Its argument is used to specify the user's password. It's used for user authentication.\n"
+    + "pwd, It's used to specify current directory user is in.\n"
+    + "mkd [dirname], It's used to make directory with provided name dirname.\n"
+    + "dele [-f, -d] [path], It's used to delete a file or directory with specified path. [-d] specifies directory and [-f] specifies file.\n"
+    + "ls, It's used to show list of files in current directory.\n"
+    + "cwd [Optional: path], It's used to change current directory to provided path. If not provided path, current directory will become home.\n"
+    + "rename [from] [to], Its arguments respectively are used to specify current file name and wanted file name. This command renames specified file.\n"
+    + "retr [path], Its argument is used to specify wanted file. It's used to download specified file.\n"
+    + "help, It's used to show this mannual.\n"
+    + "quit, It's used to quit user from server and logout.";
 
 #endif
