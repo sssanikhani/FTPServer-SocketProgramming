@@ -18,19 +18,19 @@
 class CommandHandler
 {
 public:
-    static std::string handle(std::string request, int sd);
+    static std::string handle(std::string request, int command_sd, int data_sd);
 private:
-    static std::string user(std::string request, int sd);
-    static std::string pass(std::string request, int sd);
-    static std::string pwd(std::string request, int sd);
-    static std::string mkd(std::string request, int sd);
-    static std::string dele(std::string request, int sd);
-    static std::string ls(std::string request, int sd);
-    static std::string cwd(std::string request, int sd);
-    static std::string rename(std::string request, int sd);
-    static std::string retr(std::string request, int sd);
-    static std::string help(std::string request, int sd);
-    static std::string quit(std::string request, int sd);
+    static std::string user(std::string request, int command_sd, int data_sd);
+    static std::string pass(std::string request, int command_sd, int data_sd);
+    static std::string pwd(std::string request, int command_sd, int data_sd);
+    static std::string mkd(std::string request, int command_sd, int data_sd);
+    static std::string dele(std::string request, int command_sd, int data_sd);
+    static std::string ls(std::string request, int command_sd, int data_sd);
+    static std::string cwd(std::string request, int command_sd, int data_sd);
+    static std::string rename(std::string request, int command_sd, int data_sd);
+    static std::string retr(std::string request, int command_sd, int data_sd);
+    static std::string help(std::string request, int command_sd, int data_sd);
+    static std::string quit(std::string request, int command_sd, int data_sd);
     static std::string incorrect();
 
 
