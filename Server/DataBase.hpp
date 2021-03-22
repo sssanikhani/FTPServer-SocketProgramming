@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "User.hpp"
+#include "Client.hpp"
 
 class DataBase
 {
@@ -12,9 +13,9 @@ public:
     class UserManager
     {
     public:
-        static User& get(std::string username);
-        static User& add(User user);
-        static std::vector<User*> get_all();
+        static User &get(std::string username);
+        static User &add(User user);
+        static std::vector<User *> get_all();
         static bool exists(std::string username);
 
     private:
@@ -24,16 +25,13 @@ public:
     class ClientManager
     {
     public:
-        static int bind_socket_to_user(std::string username, int sd);
-        static int authenticate(std::string username, int sd);
-        static bool is_authenticated(int sd);
-        static bool is_bound(int sd);
-        static std::string get_username(int sd);
-        static void logout(int sd);
+        static Client &get(int sd);
+        static Client &add(Client client);
+        static bool exists(int sd);
+        static void remove(int sd);
 
     private:
-        static std::unordered_map<int, std::string> socket_username_map;
-        static std::unordered_map<int, bool> socket_authentication;
+        static std::unordered_map<int, Client> clients;
     };
 };
 

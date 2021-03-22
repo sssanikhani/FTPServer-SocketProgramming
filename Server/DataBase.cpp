@@ -1,5 +1,6 @@
 #include "DataBase.hpp"
 #include "User.hpp"
+#include "Client.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -7,8 +8,7 @@
 using namespace std;
 
 unordered_map<string, User> DataBase::UserManager::users;
-unordered_map<int, string> DataBase::ClientManager::socket_username_map;
-unordered_map<int, bool> DataBase::ClientManager::socket_authentication;
+unordered_map<int, Client> DataBase::ClientManager::clients;
 
 User &DataBase::UserManager::get(string username)
 {
@@ -37,47 +37,25 @@ vector<User *> DataBase::UserManager::get_all()
     return res;
 }
 
-int DataBase::ClientManager::bind_socket_to_user(string username, int sd)
+Client &DataBase::ClientManager::get(int sd)
 {
-    socket_username_map[sd] = username;
-    socket_authentication[sd] = false;
-    return sd;
+    if (exists(sd))
+        return clients[sd];
 }
 
-int DataBase::ClientManager::authenticate(string username, int sd)
+Client &DataBase::ClientManager::add(Client client)
 {
-    bind_socket_to_user(username, sd);
-    socket_authentication[sd] = true;
-    return sd;
+    int sd = client.get_command_socket();
+    clients[sd] = client;
+    return clients[sd];
 }
 
-bool DataBase::ClientManager::is_authenticated(int sd)
+bool DataBase::ClientManager::exists(int sd)
 {
-    if (socket_authentication.find(sd) == socket_authentication.end())
-        return false;
-
-    return socket_authentication[sd];
+    return clients.find(sd) != clients.end();
 }
 
-bool DataBase::ClientManager::is_bound(int sd)
+void DataBase::ClientManager::remove(int sd)
 {
-    if (socket_username_map.find(sd) == socket_username_map.end())
-        return false;
-    return true;
-}
-
-string DataBase::ClientManager::get_username(int sd)
-{
-    if (!is_bound(sd))
-        return NULL;
-    return socket_username_map[sd];
-}
-
-void DataBase::ClientManager::logout(int sd)
-{
-    if (socket_authentication.find(sd) != socket_authentication.end())
-        socket_authentication.erase(sd);
-
-    if (socket_username_map.find(sd) != socket_username_map.end())
-        socket_username_map.erase(sd);
+    clients.erase(sd);
 }
