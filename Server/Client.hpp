@@ -22,7 +22,7 @@ public:
     std::string bind_to_user(std::string username);
     std::string set_current_path(std::string path) { return this->current_path = path; }
     bool authenticate() { return this->authenticated = true; }
-    bool logout() { return this->authenticated = false; }
+    bool logout();
 
 private:
     int command_socket;

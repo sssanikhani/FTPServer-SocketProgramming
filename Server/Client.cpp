@@ -26,3 +26,10 @@ string Client::bind_to_user(string username)
     this->bound_to_user = true;
     return this->username;
 }
+
+bool Client::logout()
+{
+    this->authenticated = false;
+    this->bound_to_user = false;
+    return true;
+}
