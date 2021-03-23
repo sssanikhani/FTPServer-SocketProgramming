@@ -9,6 +9,7 @@ using namespace std;
 
 unordered_map<string, User> DataBase::UserManager::users;
 unordered_map<int, Client> DataBase::ClientManager::clients;
+unordered_map<string, bool> DataBase::PrivilegeFiles::files;
 
 User &DataBase::UserManager::get(string username)
 {
@@ -56,4 +57,13 @@ bool DataBase::ClientManager::exists(int sd)
 void DataBase::ClientManager::remove(int sd)
 {
     clients.erase(sd);
+}
+
+void DataBase::PrivilegeFiles::change_name(string from, string to)
+{
+    if (!exists(from))
+        return;
+    
+    files.erase(from);
+    files[to] = true;
 }
