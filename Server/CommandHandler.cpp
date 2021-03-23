@@ -4,20 +4,20 @@
 #include "Responses.hpp"
 #include <string>
 #include <unordered_map>
+#include <filesystem>
 using namespace std;
 
 bool is_logged_in(int sd)
 {
     if (!DataBase::ClientManager::exists(sd))
         return false;
-    
-    Client& client = DataBase::ClientManager::get(sd);
+
+    Client &client = DataBase::ClientManager::get(sd);
     if (!client.is_authenticated())
         return false;
-    
+
     return true;
 }
-
 
 string CommandHandler::handle(string request, int command_sd, int data_sd)
 {
@@ -56,18 +56,20 @@ string CommandHandler::user(string request, int command_sd, int data_sd)
 {
     // user <username>
     vector<string> request_parts = split(request);
-    if (request_parts.size() < 2) return incorrect();
+    if (request_parts.size() < 2)
+        return incorrect();
     string username = request_parts[1];
 
     if (!DataBase::UserManager::exists(username))
         return Responses::INVALID_USER_PASS;
 
-    if (!DataBase::ClientManager::exists(command_sd)) {
-        Client c(command_sd, data_sd);
+    if (!DataBase::ClientManager::exists(command_sd))
+    {
+        Client c(command_sd, data_sd, init_path);
         DataBase::ClientManager::add(c);
     }
 
-    Client& client = DataBase::ClientManager::get(command_sd);
+    Client &client = DataBase::ClientManager::get(command_sd);
     client.bind_to_user(username);
 
     return Responses::USER_OKAY;
@@ -77,22 +79,23 @@ string CommandHandler::pass(string request, int command_sd, int data_sd)
 {
     // pass <password>
     vector<string> request_parts = split(request);
-    if (request_parts.size() < 2) return incorrect();
+    if (request_parts.size() < 2)
+        return incorrect();
     string password = request_parts[1];
 
     if (!DataBase::ClientManager::exists(command_sd))
         return Responses::BAD_SEQUENCE;
 
-    Client& client = DataBase::ClientManager::get(command_sd);
+    Client &client = DataBase::ClientManager::get(command_sd);
 
     if (!client.is_bound_to_user())
         return Responses::BAD_SEQUENCE;
 
     string username = client.get_username();
-    User& user = DataBase::UserManager::get(username);
+    User &user = DataBase::UserManager::get(username);
     if (!user.is_valid_password(password))
         return Responses::INVALID_USER_PASS;
-    
+
     client.authenticate();
     return Responses::CORRECT_PASS;
 }
