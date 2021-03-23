@@ -2,6 +2,7 @@
 #define COMMAND_HANDLER_H
 
 #include <string>
+#include <vector>
 
 #define USER_COMMAND "user"
 #define PASS_COMMAND "pass"
@@ -20,20 +21,20 @@ extern const std::string init_path;
 class CommandHandler
 {
 public:
-    static std::string handle(std::string request, int command_sd, int data_sd);
+    static std::vector<std::string> handle(std::string request, int command_sd);
 private:
-    static std::string user(std::string request, int command_sd, int data_sd);
-    static std::string pass(std::string request, int command_sd, int data_sd);
-    static std::string pwd(std::string request, int command_sd, int data_sd);
-    static std::string mkd(std::string request, int command_sd, int data_sd);
-    static std::string dele(std::string request, int command_sd, int data_sd);
-    static std::string ls(std::string request, int command_sd, int data_sd);
-    static std::string cwd(std::string request, int command_sd, int data_sd);
-    static std::string rename(std::string request, int command_sd, int data_sd);
-    static std::string retr(std::string request, int command_sd, int data_sd);
-    static std::string help(std::string request, int command_sd, int data_sd);
-    static std::string quit(std::string request, int command_sd, int data_sd);
-    static std::string incorrect();
+    static std::vector<std::string> user(std::string request, int command_sd);
+    static std::vector<std::string> pass(std::string request, int command_sd);
+    static std::vector<std::string> pwd(std::string request, int command_sd);
+    static std::vector<std::string> mkd(std::string request, int command_sd);
+    static std::vector<std::string> dele(std::string request, int command_sd);
+    static std::vector<std::string> ls(std::string request, int command_sd);
+    static std::vector<std::string> cwd(std::string request, int command_sd);
+    static std::vector<std::string> rename(std::string request, int command_sd);
+    static std::vector<std::string> retr(std::string request, int command_sd);
+    static std::vector<std::string> help(std::string request, int command_sd);
+    static std::vector<std::string> quit(std::string request, int command_sd);
+    static std::vector<std::string> incorrect();
 
 
 };
