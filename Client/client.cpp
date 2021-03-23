@@ -90,12 +90,12 @@ int main()
                 perror("recv");
                 continue;
             }
+            buffer[valread] = '\0';
             server_data = buffer;
             cout << server_data << endl;
         }
         char char_input[100] = "";
         cin.getline(char_input, sizeof(char_input), '\n');
-        cout << "char_input:" << char_input << endl;
         if (send(command_sockfd, char_input, strlen(char_input), 0) <= 0)
         {
             perror("send");
