@@ -3,9 +3,12 @@
 #include "../Utils/utils.hpp"
 #include "Responses.hpp"
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <filesystem>
+namespace fs = std::filesystem;
 using namespace std;
+
 
 bool is_logged_in(int sd)
 {
@@ -19,161 +22,303 @@ bool is_logged_in(int sd)
     return true;
 }
 
-string CommandHandler::handle(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::handle(string request, int command_sd)
 {
-    if (split(request).size() < 1)
+    vector<string> request_parts = split(request);
+    if (request_parts.size() < 1)
         return incorrect();
 
-    string command = split(request)[0];
+    string command = request_parts[0];
 
     if (command == USER_COMMAND)
-        return user(request, command_sd, data_sd);
+        return user(request, command_sd);
     else if (command == PASS_COMMAND)
-        return pass(request, command_sd, data_sd);
+        return pass(request, command_sd);
     else if (command == PWD_COMMAND)
-        return pwd(request, command_sd, data_sd);
+        return pwd(request, command_sd);
     else if (command == MKD_COMMAND)
-        return mkd(request, command_sd, data_sd);
+        return mkd(request, command_sd);
     else if (command == DELE_COMMAND)
-        return dele(request, command_sd, data_sd);
+        return dele(request, command_sd);
     else if (command == LS_COMMAND)
-        return ls(request, command_sd, data_sd);
+        return ls(request, command_sd);
     else if (command == CWD_COMMAND)
-        return cwd(request, command_sd, data_sd);
+        return cwd(request, command_sd);
     else if (command == RENAME_COMMAND)
-        return rename(request, command_sd, data_sd);
+        return rename(request, command_sd);
     else if (command == RETR_COMMAND)
-        return retr(request, command_sd, data_sd);
+        return retr(request, command_sd);
     else if (command == HELP_COMMAND)
-        return help(request, command_sd, data_sd);
+        return help(request, command_sd);
     else if (command == QUIT_COMMAND)
-        return quit(request, command_sd, data_sd);
+        return quit(request, command_sd);
     else
         return incorrect();
 }
 
-string CommandHandler::user(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::user(string request, int command_sd)
 {
     // user <username>
     vector<string> request_parts = split(request);
-    if (request_parts.size() < 2)
+    if (request_parts.size() != 2)
         return incorrect();
     string username = request_parts[1];
 
     if (!DataBase::UserManager::exists(username))
-        return Responses::INVALID_USER_PASS;
+        return vector<string>{Responses::INVALID_USER_PASS};
 
     if (!DataBase::ClientManager::exists(command_sd))
-    {
-        Client c(command_sd, data_sd, init_path);
-        DataBase::ClientManager::add(c);
-    }
+        return vector<string>{Responses::ERROR};
 
     Client &client = DataBase::ClientManager::get(command_sd);
     client.bind_to_user(username);
 
-    return Responses::USER_OKAY;
+    return vector<string>{Responses::USER_OKAY};
 }
 
-string CommandHandler::pass(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::pass(string request, int command_sd)
 {
     // pass <password>
     vector<string> request_parts = split(request);
-    if (request_parts.size() < 2)
+    if (request_parts.size() != 2)
         return incorrect();
     string password = request_parts[1];
 
     if (!DataBase::ClientManager::exists(command_sd))
-        return Responses::BAD_SEQUENCE;
+        return vector<string>{Responses::BAD_SEQUENCE};
 
     Client &client = DataBase::ClientManager::get(command_sd);
 
     if (!client.is_bound_to_user())
-        return Responses::BAD_SEQUENCE;
+        return vector<string>{Responses::BAD_SEQUENCE};
 
     string username = client.get_username();
     User &user = DataBase::UserManager::get(username);
     if (!user.is_valid_password(password))
-        return Responses::INVALID_USER_PASS;
+        return vector<string>{Responses::INVALID_USER_PASS};
 
     client.authenticate();
-    return Responses::CORRECT_PASS;
+    return vector<string>{Responses::CORRECT_PASS};
 }
 
-string CommandHandler::pwd(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::pwd(string request, int command_sd)
 {
     // pwd
-    if (!is_logged_in(command_sd))
-        return Responses::NEED_LOGIN;
+    vector<string> request_parts = split(request);
+    if (request_parts.size() != 1)
+        return incorrect();
 
-    // TODO: pwd command
+    if (!is_logged_in(command_sd))
+        return vector<string>{Responses::NEED_LOGIN};
+
+    Client &client = DataBase::ClientManager::get(command_sd);
+    return vector<string>{Responses::PWD_CODE + client.get_current_path()};
 }
 
-string CommandHandler::mkd(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::mkd(string request, int command_sd)
 {
     // mkd <path>
+    vector<string> request_parts = split(request);
+    if (request_parts.size() != 2)
+        return incorrect();
+
     if (!is_logged_in(command_sd))
-        return Responses::NEED_LOGIN;
-    // TODO: mkd command
+        return vector<string>{Responses::NEED_LOGIN};
+
+    fs::path requested_path = request_parts[1];
+
+    Client &client = DataBase::ClientManager::get(command_sd);
+    fs::path current_path = client.get_current_path();
+
+    fs::path final_path = current_path / requested_path;
+
+    error_code ec;
+    if (fs::create_directory(final_path, ec))
+        return vector<string>{Responses::MKD_CODE + fs::canonical(final_path).string() + "created."};
+    return vector<string>{Responses::ERROR};
 }
 
-string CommandHandler::dele(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::dele(string request, int command_sd)
 {
     // dele -f <file_path>
     // dele -d <directory_path>
+    vector<string> request_parts = split(request);
+    if (request_parts.size() != 3)
+        return incorrect();
+
     if (!is_logged_in(command_sd))
-        return Responses::NEED_LOGIN;
-    // TODO: dele command
+        return vector<string>{Responses::NEED_LOGIN};
+
+    Client &client = DataBase::ClientManager::get(command_sd);
+    fs::path current_path = client.get_current_path();
+
+    string flag = request_parts[1];
+    if (flag != "-f" && flag != "-d")
+        return incorrect();
+
+    fs::path requested_path = request_parts[2];
+    fs::path final_path = current_path / requested_path;
+
+    if (!fs::exists(final_path))
+        return vector<string>{Responses::ERROR};
+
+    if (flag == "-f" && fs::is_directory(final_path))
+        return vector<string>{Responses::ERROR};
+
+    if (flag == "-d" && !fs::is_directory(final_path))
+        return vector<string>{Responses::ERROR};
+
+    fs::path relative_to_init_path = fs::canonical(fs::relative(final_path, init_path));
+
+    string username = client.get_username();
+    User &user = DataBase::UserManager::get(username);
+    if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
+        return vector<string>{Responses::FILE_UNAVAILABLE};
+
+    uintmax_t num;
+    error_code ec;
+    if ((num = fs::remove_all(final_path, ec)) > 0)
+        return vector<string>{Responses::DELE_CODE + fs::canonical(final_path).string() + "deleted."};
+
+    return vector<string>{Responses::ERROR};
 }
 
-string CommandHandler::ls(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::ls(string request, int command_sd)
 {
     // ls
+    vector<string> request_parts = split(request);
+    if (request_parts.size() != 1)
+        return incorrect();
+
     if (!is_logged_in(command_sd))
-        return Responses::NEED_LOGIN;
-    // TODO: ls command
+        return vector<string>{Responses::NEED_LOGIN};
+
+    Client &client = DataBase::ClientManager::get(command_sd);
+    fs::path current_path = client.get_current_path();
+
+    vector<string> data_vec;
+    for (const auto &entry : fs::directory_iterator(current_path))
+        data_vec.push_back(fs::relative(entry.path(), current_path).string());
+
+    string data = join(data_vec, ' ');
+    return vector<string>{Responses::LIST_TRANSFER, data};
 }
 
-string CommandHandler::cwd(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::cwd(string request, int command_sd)
 {
     // cwd <path>
-    // cwd ..
     // cwd
+    vector<string> request_parts = split(request);
+    if (request_parts.size() != 1 && request_parts.size() != 2)
+        return incorrect();
+
     if (!is_logged_in(command_sd))
-        return Responses::NEED_LOGIN;
-    // TODO: cwd command
+        return vector<string>{Responses::NEED_LOGIN};
+
+    Client &client = DataBase::ClientManager::get(command_sd);
+    fs::path current_path = client.get_current_path();
+
+    fs::path final_path;
+    if (request_parts.size() == 1)
+        final_path = init_path;
+    else
+    {
+        fs::path requested_path = request_parts[1];
+        final_path = fs::canonical(fs::absolute(current_path / requested_path));
+    }
+
+    if (!fs::exists(final_path) || !fs::is_directory(final_path))
+        return vector<string>{Responses::ERROR};
+
+    client.set_current_path(final_path.string());
+    return vector<string>{Responses::SUCCESSFUL_CHANGE};
 }
 
-string CommandHandler::rename(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::rename(string request, int command_sd)
 {
     // rename <from> <to>
+    vector<string> request_parts = split(request);
+    if (request_parts.size() != 3)
+        return incorrect();
+
     if (!is_logged_in(command_sd))
-        return Responses::NEED_LOGIN;
-    // TODO: rename command
+        return vector<string>{Responses::NEED_LOGIN};
+
+    Client &client = DataBase::ClientManager::get(command_sd);
+    fs::path current_path = client.get_current_path();
+
+    fs::path from = request_parts[1];
+    fs::path to = request_parts[2];
+
+    fs::path abs_from = fs::absolute(current_path / from);
+    fs::path abs_to = fs::absolute(current_path / to);
+
+    fs::path relative_to_init_path = fs::canonical(fs::relative(abs_from, init_path));
+
+    string username = client.get_username();
+    User &user = DataBase::UserManager::get(username);
+    if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
+        return vector<string>{Responses::FILE_UNAVAILABLE};
+
+    error_code ec;
+    fs::rename(abs_from, abs_to, ec);
+
+    if (ec)
+        return vector<string>{Responses::ERROR};
+
+    return vector<string>{Responses::SUCCESSFUL_CHANGE};
 }
 
-string CommandHandler::retr(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::retr(string request, int command_sd)
 {
     // retr <name>
+    vector<string> request_parts = split(request);
+    if (request_parts.size() != 2)
+        return incorrect();
+
     if (!is_logged_in(command_sd))
-        return Responses::NEED_LOGIN;
-    // TODO: retr command
+        return vector<string>{Responses::NEED_LOGIN};
+    
+    Client &client = DataBase::ClientManager::get(command_sd);
+    fs::path current_path = client.get_current_path();
+
+    fs::path filename = request_parts[1];
+    fs::path file_path = current_path / filename;
+    
+    if (!fs::exists(file_path) || !fs::is_regular_file(file_path))
+        return vector<string>{Responses::ERROR};
+
+    fs::path relative_to_init_path = fs::canonical(fs::relative(file_path, init_path));
+
+    string username = client.get_username();
+    User &user = DataBase::UserManager::get(username);
+    if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
+        return vector<string>{Responses::FILE_UNAVAILABLE};
+    
+    string data = file_to_string(relative_to_init_path.string());
+    
+    return vector<string>{Responses::SUCCESSFUL_DOWNLOAD, data};
 }
 
-string CommandHandler::help(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::help(string request, int command_sd)
 {
     // help
-    // TODO: help command
+    return vector<string>{Responses::HELP};
 }
 
-string CommandHandler::quit(string request, int command_sd, int data_sd)
+vector<string> CommandHandler::quit(string request, int command_sd)
 {
     // quit
-    // TODO: quit command
+    if (!DataBase::ClientManager::exists(command_sd))
+        return vector<string>{Responses::ERROR};
+    Client &client = DataBase::ClientManager::get(command_sd);
+    client.logout();
+
+    return vector<string>{Responses::SUCCESSFUL_QUIT};
 }
 
-string CommandHandler::incorrect()
+vector<string> CommandHandler::incorrect()
 {
     // <!incorrect command>
-    // TODO: incorrect command
+    return vector<string>{Responses::PARAMS_ERROR};
 }
