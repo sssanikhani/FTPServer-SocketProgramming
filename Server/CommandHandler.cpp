@@ -6,6 +6,18 @@
 #include <unordered_map>
 using namespace std;
 
+bool is_logged_in(int sd)
+{
+    if (!DataBase::ClientManager::exists(sd))
+        return false;
+    
+    Client& client = DataBase::ClientManager::get(sd);
+    if (!client.is_authenticated())
+        return false;
+    
+    return true;
+}
+
 
 string CommandHandler::handle(string request, int command_sd, int data_sd)
 {
@@ -88,12 +100,17 @@ string CommandHandler::pass(string request, int command_sd, int data_sd)
 string CommandHandler::pwd(string request, int command_sd, int data_sd)
 {
     // pwd
+    if (!is_logged_in(command_sd))
+        return Responses::NEED_LOGIN;
+
     // TODO: pwd command
 }
 
 string CommandHandler::mkd(string request, int command_sd, int data_sd)
 {
     // mkd <path>
+    if (!is_logged_in(command_sd))
+        return Responses::NEED_LOGIN;
     // TODO: mkd command
 }
 
@@ -101,12 +118,16 @@ string CommandHandler::dele(string request, int command_sd, int data_sd)
 {
     // dele -f <file_path>
     // dele -d <directory_path>
+    if (!is_logged_in(command_sd))
+        return Responses::NEED_LOGIN;
     // TODO: dele command
 }
 
 string CommandHandler::ls(string request, int command_sd, int data_sd)
 {
     // ls
+    if (!is_logged_in(command_sd))
+        return Responses::NEED_LOGIN;
     // TODO: ls command
 }
 
@@ -115,18 +136,24 @@ string CommandHandler::cwd(string request, int command_sd, int data_sd)
     // cwd <path>
     // cwd ..
     // cwd
+    if (!is_logged_in(command_sd))
+        return Responses::NEED_LOGIN;
     // TODO: cwd command
 }
 
 string CommandHandler::rename(string request, int command_sd, int data_sd)
 {
     // rename <from> <to>
+    if (!is_logged_in(command_sd))
+        return Responses::NEED_LOGIN;
     // TODO: rename command
 }
 
 string CommandHandler::retr(string request, int command_sd, int data_sd)
 {
     // retr <name>
+    if (!is_logged_in(command_sd))
+        return Responses::NEED_LOGIN;
     // TODO: retr command
 }
 
