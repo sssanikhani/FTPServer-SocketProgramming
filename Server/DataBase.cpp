@@ -62,10 +62,8 @@ void DataBase::ClientManager::remove(int sd)
 vector<Client> DataBase::ClientManager::get_all()
 {
     vector<Client> res;
-    for (auto &x : clients)
-    {
-        res.push_back(x.second);
-    }
+    for (auto &it : clients)
+        res.push_back(it.second);
     return res;
 }
 
@@ -73,7 +71,7 @@ void DataBase::PrivilegeFiles::change_name(string from, string to)
 {
     if (!exists(from))
         return;
-    
+
     files.erase(from);
     files[to] = true;
 }
