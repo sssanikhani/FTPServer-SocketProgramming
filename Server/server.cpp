@@ -244,8 +244,6 @@ int main()
                 perror("accept");
                 exit(EXIT_FAILURE);
             }
-            sleep(3);
-            cout << "HERE" << endl;
             if ((data_sd = accept(sockfd_data, (struct sockaddr *)&data_server, (socklen_t *)&data_srvlen)) < 0)
             {
                 perror("accept");
