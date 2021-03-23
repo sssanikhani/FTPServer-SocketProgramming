@@ -10,7 +10,7 @@ Client::Client(int command_sd, int data_sd, string _current_path)
     this->current_path = _current_path;
 }
 
-Client::Client(Client &c)
+Client::Client(const Client &c)
 {
     this->command_socket = c.command_socket;
     this->data_socket = c.data_socket;

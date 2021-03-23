@@ -8,7 +8,7 @@ class Client
 public:
     Client() {}
     Client(int command_sd, int data_sd, std::string _current_path);
-    Client(Client &c);
+    Client(const Client &c);
 
     int get_command_socket() { return this->command_socket; }
     int get_data_socket() { return this->data_socket; }
