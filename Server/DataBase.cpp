@@ -12,8 +12,7 @@ unordered_map<int, Client> DataBase::ClientManager::clients;
 
 User &DataBase::UserManager::get(string username)
 {
-    if (exists(username))
-        return users[username];
+    return users[username];
 }
 
 User &DataBase::UserManager::add(User user)
@@ -39,8 +38,7 @@ vector<User *> DataBase::UserManager::get_all()
 
 Client &DataBase::ClientManager::get(int sd)
 {
-    if (exists(sd))
-        return clients[sd];
+    return clients[sd];
 }
 
 Client &DataBase::ClientManager::add(Client client)
