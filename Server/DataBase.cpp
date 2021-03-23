@@ -59,6 +59,16 @@ void DataBase::ClientManager::remove(int sd)
     clients.erase(sd);
 }
 
+vector<Client> DataBase::ClientManager::get_all()
+{
+    vector<Client> res;
+    for (auto &x : clients)
+    {
+        res.push_back(x.second);
+    }
+    return res;
+}
+
 void DataBase::PrivilegeFiles::change_name(string from, string to)
 {
     if (!exists(from))

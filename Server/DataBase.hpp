@@ -29,6 +29,7 @@ public:
         static Client &add(Client client);
         static bool exists(int sd);
         static void remove(int sd);
+        static std::vector<Client> get_all();
 
     private:
         static std::unordered_map<int, Client> clients;
