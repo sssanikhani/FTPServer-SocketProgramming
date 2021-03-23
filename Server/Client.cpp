@@ -1,13 +1,13 @@
 #include "Client.hpp"
 using namespace std;
 
-Client::Client(int command_sd, int data_sd)
+Client::Client(int command_sd, int data_sd, string _current_path)
 {
     this->command_socket = command_sd;
     this->data_socket = data_sd;
     this->bound_to_user = false;
     this->authenticated = false;
-    this->current_path = "./";
+    this->current_path = _current_path;
 }
 
 Client::Client(Client &c)
