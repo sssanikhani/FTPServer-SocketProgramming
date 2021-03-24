@@ -1,15 +1,17 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <string>
+#include <vector>
+#include "../Utils/utils.hpp"
 
 #define PORT 3000
 #define TRUE 1
 
-#define TEST_RES1 "226: Successful Download."
-#define TEST_RES2 "226: List transfer done."
+#define SUCCESSFUL_DOWNLOAD "226: Successful Download."
+#define LIST_TRANSFER "226: List transfer done."
 
 using namespace std;
 
@@ -18,7 +20,7 @@ int main()
     struct sockaddr_in command_serv_addr;
     struct sockaddr_in data_serv_addr;
 
-    char buffer[1024] = {0};
+    char buffer[65536] = {0};
     int opt = 1;
 
     int command_sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -74,32 +76,37 @@ int main()
     char delim = '\n';
     while (TRUE)
     {
-        valread = recv(command_sockfd, buffer, sizeof(buffer), 0);
-        if (valread <= 0)
-        {
-            perror("recv");
-            continue;
-        }
-        buffer[valread] = '\0';
-        server_message = buffer;
-        cout << server_message << endl;
-        if (server_message == TEST_RES1 || server_message == TEST_RES2){
-            valread = recv(data_sockfd, buffer, sizeof(buffer), 0);
-            if (valread <= 0)
-            {
-                perror("recv");
-                continue;
-            }
-            buffer[valread] = '\0';
-            server_data = buffer;
-            cout << server_data << endl;
-        }
-        char char_input[100] = "";
-        cin.getline(char_input, sizeof(char_input), '\n');
-        if (send(command_sockfd, char_input, strlen(char_input), 0) <= 0)
+        string input;
+        getline(cin, input, '\n');
+        vector<string> input_parts = split(input);
+        if (send(command_sockfd, input.c_str(), input.length(), 0) <= 0)
         {
             perror("send");
         }
+
+        buffer[0] = '\0';
+        valread = recv(command_sockfd, buffer, sizeof(buffer), 0);
+        if (valread < 0)
+            perror("recv");
+        else {
+            buffer[valread] = '\0';
+            server_message = buffer;
+            cout << server_message << endl;
+        }
+        buffer[0] = '\0';
+        if (server_message == LIST_TRANSFER || server_message == SUCCESSFUL_DOWNLOAD){
+            valread = recv(data_sockfd, buffer, sizeof(buffer), 0);
+            if (valread < 0)
+                perror("recv");
+            else {
+                buffer[valread] = '\0';
+                server_data = buffer;
+                cout << server_data << endl;
+            }
+        }
+
+        if (input_parts[0] == "quit")
+            exit(0);
     }
 
     return 0;
