@@ -41,6 +41,7 @@ public:
         static bool exists(std::string file_name) { return files.find(file_name) != files.end(); }
         static void add(std::string file_name) { files[file_name] = true; }
         static void change_name(std::string from, std::string to);
+
     private:
         static std::unordered_map<std::string, bool> files;
     };

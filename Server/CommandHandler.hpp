@@ -22,6 +22,7 @@ class CommandHandler
 {
 public:
     static std::vector<std::string> handle(std::string request, int command_sd);
+
 private:
     static std::vector<std::string> user(std::string request, int command_sd);
     static std::vector<std::string> pass(std::string request, int command_sd);
@@ -35,8 +36,6 @@ private:
     static std::vector<std::string> help(std::string request, int command_sd);
     static std::vector<std::string> quit(std::string request, int command_sd);
     static std::vector<std::string> incorrect();
-
-
 };
 
 #endif

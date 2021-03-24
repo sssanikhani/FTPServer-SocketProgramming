@@ -16,7 +16,6 @@
 #include "Client.hpp"
 #include "User.hpp"
 
-
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 using namespace std;

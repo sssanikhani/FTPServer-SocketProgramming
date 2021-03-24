@@ -10,10 +10,6 @@ User::User(string _username, string _password, int max_size, bool _is_admin)
     this->is_admin = _is_admin;
 }
 
-User::User()
-{
-}
-
 User::User(User &u)
 {
     this->username = u.username;

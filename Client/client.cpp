@@ -88,17 +88,20 @@ int main()
         valread = recv(command_sockfd, buffer, sizeof(buffer), 0);
         if (valread < 0)
             perror("recv");
-        else {
+        else
+        {
             buffer[valread] = '\0';
             server_message = buffer;
             cout << server_message << endl;
         }
         buffer[0] = '\0';
-        if (server_message == LIST_TRANSFER || server_message == SUCCESSFUL_DOWNLOAD){
+        if (server_message == LIST_TRANSFER || server_message == SUCCESSFUL_DOWNLOAD)
+        {
             valread = recv(data_sockfd, buffer, sizeof(buffer), 0);
             if (valread < 0)
                 perror("recv");
-            else {
+            else
+            {
                 buffer[valread] = '\0';
                 server_data = buffer;
                 cout << server_data << endl;
