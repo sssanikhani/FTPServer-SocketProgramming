@@ -6,9 +6,9 @@
 #include <vector>
 #include <unordered_map>
 #include <filesystem>
+#include <iostream>
 namespace fs = std::filesystem;
 using namespace std;
-
 
 bool is_logged_in(int sd)
 {
@@ -134,7 +134,7 @@ vector<string> CommandHandler::mkd(string request, int command_sd)
 
     error_code ec;
     if (fs::create_directory(final_path, ec))
-        return vector<string>{Responses::MKD_CODE + fs::canonical(final_path).string() + "created."};
+        return vector<string>{Responses::MKD_CODE + fs::canonical(final_path).string() + " created."};
     return vector<string>{Responses::ERROR};
 }
 
@@ -159,26 +159,29 @@ vector<string> CommandHandler::dele(string request, int command_sd)
     fs::path requested_path = request_parts[2];
     fs::path final_path = current_path / requested_path;
 
-    if (!fs::exists(final_path))
+    error_code exists_ec;
+    if (!fs::exists(final_path, exists_ec))
         return vector<string>{Responses::ERROR};
 
-    if (flag == "-f" && fs::is_directory(final_path))
+    error_code ec;
+    if (flag == "-f" && fs::is_directory(final_path, ec))
         return vector<string>{Responses::ERROR};
 
-    if (flag == "-d" && !fs::is_directory(final_path))
+    cout << final_path << endl;
+    if (flag == "-d" && !fs::is_directory(final_path, ec))
         return vector<string>{Responses::ERROR};
 
     fs::path relative_to_init_path = fs::canonical(fs::relative(final_path, init_path));
-
+    cout << init_path << endl;
     string username = client.get_username();
     User &user = DataBase::UserManager::get(username);
     if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
         return vector<string>{Responses::FILE_UNAVAILABLE};
 
     uintmax_t num;
-    error_code ec;
-    if ((num = fs::remove_all(final_path, ec)) > 0)
-        return vector<string>{Responses::DELE_CODE + fs::canonical(final_path).string() + "deleted."};
+    error_code remove_ec;
+    if ((num = fs::remove_all(final_path, remove_ec)) > 0)
+        return vector<string>{Responses::DELE_CODE + relative_to_init_path.string() + " deleted."};
 
     return vector<string>{Responses::ERROR};
 }
@@ -201,6 +204,7 @@ vector<string> CommandHandler::ls(string request, int command_sd)
         data_vec.push_back(fs::relative(entry.path(), current_path).string());
 
     string data = join(data_vec, ' ');
+    data = "./ ../ " + data;
     return vector<string>{Responses::LIST_TRANSFER, data};
 }
 
@@ -224,13 +228,14 @@ vector<string> CommandHandler::cwd(string request, int command_sd)
     else
     {
         fs::path requested_path = request_parts[1];
-        final_path = fs::canonical(fs::absolute(current_path / requested_path));
+        final_path = fs::absolute(current_path / requested_path);
     }
 
-    if (!fs::exists(final_path) || !fs::is_directory(final_path))
+    error_code ec;
+    if (!fs::exists(final_path, ec) || !fs::is_directory(final_path, ec))
         return vector<string>{Responses::ERROR};
 
-    client.set_current_path(final_path.string());
+    client.set_current_path(fs::canonical(final_path).string());
     return vector<string>{Responses::SUCCESSFUL_CHANGE};
 }
 
@@ -253,6 +258,9 @@ vector<string> CommandHandler::rename(string request, int command_sd)
     fs::path abs_from = fs::absolute(current_path / from);
     fs::path abs_to = fs::absolute(current_path / to);
 
+    error_code ec;
+    if (!fs::exists(abs_from, ec))
+        return vector<string>{Responses::ERROR};
     fs::path relative_to_init_path = fs::canonical(fs::relative(abs_from, init_path));
 
     string username = client.get_username();
@@ -260,7 +268,6 @@ vector<string> CommandHandler::rename(string request, int command_sd)
     if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
         return vector<string>{Responses::FILE_UNAVAILABLE};
 
-    error_code ec;
     fs::rename(abs_from, abs_to, ec);
 
     if (ec)
@@ -278,14 +285,15 @@ vector<string> CommandHandler::retr(string request, int command_sd)
 
     if (!is_logged_in(command_sd))
         return vector<string>{Responses::NEED_LOGIN};
-    
+
     Client &client = DataBase::ClientManager::get(command_sd);
     fs::path current_path = client.get_current_path();
 
     fs::path filename = request_parts[1];
     fs::path file_path = current_path / filename;
-    
-    if (!fs::exists(file_path) || !fs::is_regular_file(file_path))
+
+    error_code ec;
+    if (!fs::exists(file_path, ec) || !fs::is_regular_file(file_path, ec))
         return vector<string>{Responses::ERROR};
 
     fs::path relative_to_init_path = fs::canonical(fs::relative(file_path, init_path));
@@ -294,9 +302,9 @@ vector<string> CommandHandler::retr(string request, int command_sd)
     User &user = DataBase::UserManager::get(username);
     if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
         return vector<string>{Responses::FILE_UNAVAILABLE};
-    
+
     string data = file_to_string(relative_to_init_path.string());
-    
+
     return vector<string>{Responses::SUCCESSFUL_DOWNLOAD, data};
 }
 
