@@ -14,6 +14,7 @@ public:
     bool is_administrator() { return this->is_admin; }
     void set_username(std::string _username) { this->username = _username; }
     void set_password(std::string _password) { this->password = _password; }
+    void set_remaining_size(int s) { this->remaining_size = s; }
     bool is_valid_password(std::string _password) { return this->password == _password; }
 
 private:
