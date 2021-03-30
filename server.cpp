@@ -26,6 +26,15 @@ using namespace std;
 const string INIT_PATH = fs::absolute(fs::current_path()).string();
 const string LOG_FILE_PATH = "logs.log";
 
+void add_privilege_files(json files)
+{
+    for(int i = 0; i < files.size(); i++)
+    {
+        string file_name = files[i];
+        DataBase::PrivilegeFiles::add(file_name);
+    }
+}
+
 void add_users_to_database(json config)
 {
     string username, password, size, admin;
@@ -56,6 +65,7 @@ int main()
     json config;
     stringstream(content) >> config;
     add_users_to_database(config);
+    add_privilege_files(config["files"]);
 
     const int COMMAND_PORT = config["commandChannelPort"];
     const int DATA_PORT = config["dataChannelPort"];
