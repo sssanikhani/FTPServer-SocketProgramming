@@ -10,8 +10,8 @@
 #include <nlohmann/json.hpp>
 #include "../Utils/utils.hpp"
 
-#define TRUE 1
 #define CONFIG_FILE_PATH "Server/config.json"
+#define BUFF_SIZE 65536
 
 #define SUCCESSFUL_DOWNLOAD "226: Successful Download."
 #define LIST_TRANSFER "226: List transfer done."
@@ -27,16 +27,14 @@ int main()
 
     json config;
     stringstream(content) >> config;
-    
+
     const int COMMAND_PORT = config["commandChannelPort"];
     const int DATA_PORT = config["dataChannelPort"];
-
-    
 
     struct sockaddr_in command_serv_addr;
     struct sockaddr_in data_serv_addr;
 
-    char buffer[65536] = {0};
+    char buffer[BUFF_SIZE] = {0};
     int opt = 1;
 
     int command_sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -88,19 +86,20 @@ int main()
     }
 
     int valread;
-    string server_message, server_data;
+    string input, server_message, server_data;
     char delim = '\n';
-    while (TRUE)
+    while (1)
     {
-        string input;
         getline(cin, input, '\n');
+        if (input == "")
+            input = " ";
         vector<string> input_parts = split(input);
         if (send(command_sockfd, input.c_str(), input.length(), 0) <= 0)
         {
             perror("send");
         }
 
-        buffer[0] = '\0';
+        memset(buffer, 0, sizeof(buffer));
         valread = recv(command_sockfd, buffer, sizeof(buffer), 0);
         if (valread < 0)
             perror("recv");
@@ -110,7 +109,7 @@ int main()
             server_message = buffer;
             cout << server_message << endl;
         }
-        buffer[0] = '\0';
+        memset(buffer, 0, sizeof(buffer));
         if (server_message == LIST_TRANSFER || server_message == SUCCESSFUL_DOWNLOAD)
         {
             valread = recv(data_sockfd, buffer, sizeof(buffer), 0);
@@ -124,7 +123,7 @@ int main()
             }
         }
 
-        if (input_parts[0] == "quit")
+        if (input_parts.size() > 0 && input_parts[0] == "quit")
             exit(0);
     }
 
