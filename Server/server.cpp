@@ -23,7 +23,8 @@ using namespace std;
 #define MAX_CLIENTS 20
 #define CONFIG_FILE_PATH "Server/config.json"
 
-const string init_path = fs::absolute(fs::current_path()).string();
+const string INIT_PATH = fs::absolute(fs::current_path()).string();
+const string LOG_FILE_PATH = "Server/logs.log";
 
 void add_users_to_database(json config)
 {
@@ -44,6 +45,10 @@ void add_users_to_database(json config)
 
 int main()
 {
+    // Create log file if not exist
+    fstream log_file;
+    log_file.open(LOG_FILE_PATH, fstream::app);
+    log_file.close();
 
     ifstream config_file(CONFIG_FILE_PATH, ifstream::binary);
     string content((std::istreambuf_iterator<char>(config_file)), (std::istreambuf_iterator<char>()));
@@ -152,7 +157,7 @@ int main()
             }
             printf("New connection , socket fd is %d , ip is : %s , port : %d  \n", command_sd, inet_ntoa(command_server.sin_addr), ntohs(command_server.sin_port));
 
-            Client new_client(command_sd, data_sd, init_path);
+            Client new_client(command_sd, data_sd, INIT_PATH);
             DataBase::ClientManager::add(new_client);
         }
 
