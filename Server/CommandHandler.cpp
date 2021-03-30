@@ -24,6 +24,7 @@ bool is_logged_in(int sd)
 
 vector<string> CommandHandler::handle(string request, int command_sd)
 {
+    cout << LOG_FILE_PATH << endl;
     vector<string> request_parts = split(request);
     if (request_parts.size() < 1)
         return incorrect();
@@ -171,8 +172,8 @@ vector<string> CommandHandler::dele(string request, int command_sd)
     if (flag == "-d" && !fs::is_directory(final_path, ec))
         return vector<string>{Responses::ERROR};
 
-    fs::path relative_to_init_path = fs::canonical(fs::relative(final_path, init_path));
-    cout << init_path << endl;
+    fs::path relative_to_init_path = fs::canonical(fs::relative(final_path, INIT_PATH));
+    cout << INIT_PATH << endl;
     string username = client.get_username();
     User &user = DataBase::UserManager::get(username);
     if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
@@ -224,7 +225,7 @@ vector<string> CommandHandler::cwd(string request, int command_sd)
 
     fs::path final_path;
     if (request_parts.size() == 1)
-        final_path = init_path;
+        final_path = INIT_PATH;
     else
     {
         fs::path requested_path = request_parts[1];
@@ -261,7 +262,7 @@ vector<string> CommandHandler::rename(string request, int command_sd)
     error_code ec;
     if (!fs::exists(abs_from, ec))
         return vector<string>{Responses::ERROR};
-    fs::path relative_to_init_path = fs::canonical(fs::relative(abs_from, init_path));
+    fs::path relative_to_init_path = fs::canonical(fs::relative(abs_from, INIT_PATH));
 
     string username = client.get_username();
     User &user = DataBase::UserManager::get(username);
@@ -296,7 +297,7 @@ vector<string> CommandHandler::retr(string request, int command_sd)
     if (!fs::exists(file_path, ec) || !fs::is_regular_file(file_path, ec))
         return vector<string>{Responses::ERROR};
 
-    fs::path relative_to_init_path = fs::canonical(fs::relative(file_path, init_path));
+    fs::path relative_to_init_path = fs::canonical(fs::relative(file_path, INIT_PATH));
 
     string username = client.get_username();
     User &user = DataBase::UserManager::get(username);

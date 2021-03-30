@@ -16,7 +16,8 @@
 #define HELP_COMMAND "help"
 #define QUIT_COMMAND "quit"
 
-extern const std::string init_path;
+extern const std::string INIT_PATH;
+extern const std::string LOG_FILE_PATH;
 
 class CommandHandler
 {
