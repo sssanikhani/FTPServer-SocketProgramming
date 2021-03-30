@@ -10,7 +10,7 @@
 #include <sstream>
 #include <filesystem>
 #include <nlohmann/json.hpp>
-#include "../Utils/utils.hpp"
+#include "utils.hpp"
 #include "CommandHandler.hpp"
 #include "DataBase.hpp"
 #include "Client.hpp"
@@ -21,10 +21,10 @@ namespace fs = std::filesystem;
 using namespace std;
 
 #define MAX_CLIENTS 20
-#define CONFIG_FILE_PATH "Server/config.json"
+#define CONFIG_FILE_PATH "config.json"
 
 const string INIT_PATH = fs::absolute(fs::current_path()).string();
-const string LOG_FILE_PATH = "Server/logs.log";
+const string LOG_FILE_PATH = "logs.log";
 
 void add_users_to_database(json config)
 {

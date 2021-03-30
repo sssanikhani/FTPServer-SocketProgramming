@@ -1,54 +1,48 @@
 CC = g++
 ISO = --std=c++17
-SERVER_DIR = Server/
-CLIENT_DIR = Client/
-UTILS_DIR = Utils/
 
 
 all: server client
 
-server: server.o utils.o user.o server/client.o database.o commands.o responses.o
-	$(CC) $(ISO) -o $(SERVER_DIR)server \
-					$(SERVER_DIR)server.o \
-					$(SERVER_DIR)user.o \
-					$(SERVER_DIR)client.o \
-					$(SERVER_DIR)database.o \
-					$(SERVER_DIR)commands.o \
-					$(SERVER_DIR)responses.o \
-					$(UTILS_DIR)utils.o
+server: server.o utils.o User.o Client.o DataBase.o CommandHandler.o Responses.o
+	$(CC) $(ISO) -o server \
+					server.o \
+					User.o \
+					Client.o \
+					DataBase.o \
+					CommandHandler.o \
+					Responses.o \
+					utils.o
 
-server.o: utils.o user.o database.o commands.o responses.o
-	$(CC) $(ISO) -c $(SERVER_DIR)server.cpp -o $(SERVER_DIR)server.o
+server.o:
+	$(CC) $(ISO) -c server.cpp -o server.o
 
 client: client.o utils.o
-	$(CC) $(ISO) -o $(CLIENT_DIR)client $(CLIENT_DIR)client.o $(UTILS_DIR)utils.o
+	$(CC) $(ISO) -o client client.o utils.o
 
 client.o:
-	$(CC) $(ISO) -c $(CLIENT_DIR)client.cpp -o $(CLIENT_DIR)client.o
+	$(CC) $(ISO) -c client.cpp -o client.o
 
 utils.o:
-	$(CC) $(ISO) -c $(UTILS_DIR)utils.cpp -o $(UTILS_DIR)utils.o
+	$(CC) $(ISO) -c utils.cpp -o utils.o
 
-user.o:
-	$(CC) $(ISO) -c $(SERVER_DIR)User.cpp -o $(SERVER_DIR)user.o
+User.o:
+	$(CC) $(ISO) -c User.cpp -o User.o
 
-server/client.o:
-	$(CC) $(ISO) -c $(SERVER_DIR)Client.cpp -o $(SERVER_DIR)client.o
+Client.o:
+	$(CC) $(ISO) -c Client.cpp -o Client.o
 
-database.o: user.o server/client.o
-	$(CC) $(ISO) -c $(SERVER_DIR)DataBase.cpp -o $(SERVER_DIR)database.o
+DataBase.o:
+	$(CC) $(ISO) -c DataBase.cpp -o DataBase.o
 
-commands.o: database.o responses.o user.o server/client.o
-	$(CC) $(ISO) -c $(SERVER_DIR)CommandHandler.cpp -o $(SERVER_DIR)commands.o
+CommandHandler.o:
+	$(CC) $(ISO) -c CommandHandler.cpp -o CommandHandler.o
 
-responses.o:
-	$(CC) $(ISO) -c $(SERVER_DIR)Responses.cpp -o $(SERVER_DIR)responses.o
+Responses.o:
+	$(CC) $(ISO) -c Responses.cpp -o Responses.o
 
 
 clean:
 	rm -f *.o
-	rm -f $(SERVER_DIR)*.o
-	rm -f $(CLIENT_DIR)*.o
-	rm -f $(UTILS_DIR)*.o
-	rm -f $(SERVER_DIR)server
-	rm -f $(CLIENT_DIR)client
+	rm -f server
+	rm -f client

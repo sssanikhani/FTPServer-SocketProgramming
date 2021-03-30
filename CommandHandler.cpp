@@ -1,6 +1,6 @@
 #include "CommandHandler.hpp"
 #include "DataBase.hpp"
-#include "../Utils/utils.hpp"
+#include "utils.hpp"
 #include "Responses.hpp"
 #include <string>
 #include <vector>

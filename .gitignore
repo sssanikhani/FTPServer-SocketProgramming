@@ -59,7 +59,7 @@ dkms.conf
 .idea/
 
 # Project specified files
-/Server/server
-/Client/client
-/Server/logs.log
+/server
+/client
+/logs.log
 

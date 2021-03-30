@@ -8,9 +8,9 @@
 #include <fstream>
 #include <sstream>
 #include <nlohmann/json.hpp>
-#include "../Utils/utils.hpp"
+#include "utils.hpp"
 
-#define CONFIG_FILE_PATH "Server/config.json"
+#define CONFIG_FILE_PATH "config.json"
 #define BUFF_SIZE 65536
 
 #define SUCCESSFUL_DOWNLOAD "226: Successful Download."
