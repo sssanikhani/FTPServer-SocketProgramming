@@ -24,7 +24,6 @@ bool is_logged_in(int sd)
 
 vector<string> CommandHandler::handle(string request, int command_sd)
 {
-    cout << LOG_FILE_PATH << endl;
     vector<string> request_parts = split(request);
     if (request_parts.size() < 1)
         return incorrect();
@@ -172,8 +171,7 @@ vector<string> CommandHandler::dele(string request, int command_sd)
     if (flag == "-d" && !fs::is_directory(final_path, ec))
         return vector<string>{Responses::ERROR};
 
-    fs::path relative_to_init_path = fs::canonical(fs::relative(final_path, INIT_PATH));
-    cout << INIT_PATH << endl;
+    fs::path relative_to_init_path = fs::relative(fs::canonical(final_path), INIT_PATH);
     string username = client.get_username();
     User &user = DataBase::UserManager::get(username);
     if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
@@ -262,7 +260,7 @@ vector<string> CommandHandler::rename(string request, int command_sd)
     error_code ec;
     if (!fs::exists(abs_from, ec))
         return vector<string>{Responses::ERROR};
-    fs::path relative_to_init_path = fs::canonical(fs::relative(abs_from, INIT_PATH));
+    fs::path relative_to_init_path = fs::relative(fs::canonical(abs_from), INIT_PATH);
 
     string username = client.get_username();
     User &user = DataBase::UserManager::get(username);
@@ -297,7 +295,7 @@ vector<string> CommandHandler::retr(string request, int command_sd)
     if (!fs::exists(file_path, ec) || !fs::is_regular_file(file_path, ec))
         return vector<string>{Responses::ERROR};
 
-    fs::path relative_to_init_path = fs::canonical(fs::relative(file_path, INIT_PATH));
+    fs::path relative_to_init_path = fs::relative(fs::canonical(file_path), INIT_PATH);
 
     string username = client.get_username();
     User &user = DataBase::UserManager::get(username);
@@ -309,8 +307,7 @@ vector<string> CommandHandler::retr(string request, int command_sd)
     int new_remaining_size = user_remaining_size - file_size;
     if (new_remaining_size < 0)
         return vector<string>{Responses::NOT_ENOUGH_SIZE};
-    cout << user_remaining_size << endl;
-    cout << file_size << endl;
+
     user.set_remaining_size(new_remaining_size);
     string data = file_to_string(relative_to_init_path.string());
 
