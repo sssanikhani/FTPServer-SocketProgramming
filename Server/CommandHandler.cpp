@@ -302,7 +302,15 @@ vector<string> CommandHandler::retr(string request, int command_sd)
     User &user = DataBase::UserManager::get(username);
     if (!user.is_administrator() && DataBase::PrivilegeFiles::exists(relative_to_init_path))
         return vector<string>{Responses::FILE_UNAVAILABLE};
-
+    
+    uintmax_t file_size = fs::file_size(file_path, ec);
+    int user_remaining_size = user.get_remaining_size();
+    int new_remaining_size = user_remaining_size - file_size;
+    if (new_remaining_size < 0)
+        return vector<string>{Responses::NOT_ENOUGH_SIZE};
+    cout << user_remaining_size << endl;
+    cout << file_size << endl;
+    user.set_remaining_size(new_remaining_size);
     string data = file_to_string(relative_to_init_path.string());
 
     return vector<string>{Responses::SUCCESSFUL_DOWNLOAD, data};
