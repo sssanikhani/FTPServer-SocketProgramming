@@ -5,18 +5,34 @@
 #include <arpa/inet.h>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <nlohmann/json.hpp>
 #include "../Utils/utils.hpp"
 
-#define PORT 3000
 #define TRUE 1
+#define CONFIG_FILE_PATH "Server/config.json"
 
 #define SUCCESSFUL_DOWNLOAD "226: Successful Download."
 #define LIST_TRANSFER "226: List transfer done."
 
+using json = nlohmann::json;
 using namespace std;
 
 int main()
 {
+
+    ifstream config_file(CONFIG_FILE_PATH, ifstream::binary);
+    string content((std::istreambuf_iterator<char>(config_file)), (std::istreambuf_iterator<char>()));
+
+    json config;
+    stringstream(content) >> config;
+    
+    const int COMMAND_PORT = config["commandChannelPort"];
+    const int DATA_PORT = config["dataChannelPort"];
+
+    
+
     struct sockaddr_in command_serv_addr;
     struct sockaddr_in data_serv_addr;
 
@@ -32,10 +48,10 @@ int main()
     }
 
     command_serv_addr.sin_family = AF_INET;
-    command_serv_addr.sin_port = htons(PORT); // TODO: get from config.json
+    command_serv_addr.sin_port = htons(COMMAND_PORT);
 
     data_serv_addr.sin_family = AF_INET;
-    data_serv_addr.sin_port = htons(8001); // TODO: get from config.json
+    data_serv_addr.sin_port = htons(DATA_PORT);
 
     if (inet_pton(AF_INET, "127.0.0.1", &command_serv_addr.sin_addr) <= 0)
     {

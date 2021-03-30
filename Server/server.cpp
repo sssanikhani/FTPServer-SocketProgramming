@@ -9,7 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
-#include "../json/single_include/nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 #include "../Utils/utils.hpp"
 #include "CommandHandler.hpp"
 #include "DataBase.hpp"
@@ -20,8 +20,8 @@ using json = nlohmann::json;
 namespace fs = std::filesystem;
 using namespace std;
 
-#define PORT 3000 // TODO: read from config.json
 #define MAX_CLIENTS 20
+#define CONFIG_FILE_PATH "Server/config.json"
 
 const string init_path = fs::absolute(fs::current_path()).string();
 
@@ -45,12 +45,15 @@ void add_users_to_database(json config)
 int main()
 {
 
-    ifstream config_file("Server/config.json", ifstream::binary);
+    ifstream config_file(CONFIG_FILE_PATH, ifstream::binary);
     string content((std::istreambuf_iterator<char>(config_file)), (std::istreambuf_iterator<char>()));
 
     json config;
     stringstream(content) >> config;
     add_users_to_database(config);
+
+    const int COMMAND_PORT = config["commandChannelPort"];
+    const int DATA_PORT = config["dataChannelPort"];
 
     struct sockaddr_in command_server;
     struct sockaddr_in data_server;
@@ -78,7 +81,7 @@ int main()
 
     command_server.sin_family = AF_INET;
     command_server.sin_addr.s_addr = INADDR_ANY;
-    command_server.sin_port = htons(PORT); // TODO: read port from config.json
+    command_server.sin_port = htons(COMMAND_PORT);
     if (setsockopt(sockfd_comm, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
     {
         perror("setsockopt");
@@ -94,7 +97,7 @@ int main()
     opt = 1;
     data_server.sin_family = AF_INET;
     data_server.sin_addr.s_addr = INADDR_ANY;
-    data_server.sin_port = htons(8001); // TODO read port from config.json
+    data_server.sin_port = htons(DATA_PORT);
     if (setsockopt(sockfd_data, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
     {
         perror("setsockopt");
@@ -107,7 +110,7 @@ int main()
     }
     listen(sockfd_data, MAX_CLIENTS);
 
-    cout << "Server Started Running on port " << PORT << endl;
+    cout << "Command Server Started Running on port " << COMMAND_PORT << endl;
 
     while (1)
     {
