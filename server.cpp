@@ -28,7 +28,7 @@ const string LOG_FILE_PATH = "logs.log";
 
 void add_privilege_files(json files)
 {
-    for(int i = 0; i < files.size(); i++)
+    for (int i = 0; i < files.size(); i++)
     {
         string file_name = files[i];
         DataBase::PrivilegeFiles::add(file_name);
@@ -54,7 +54,7 @@ void add_users_to_database(json config)
 
 int main()
 {
-    // Create log file if not exist
+    // Create log file if does not exist
     fstream log_file;
     log_file.open(LOG_FILE_PATH, fstream::app);
     log_file.close();
@@ -84,13 +84,16 @@ int main()
     char buffer[1025];
     char client_message[1025];
 
+    string log_message;
+
     vector<Client> clients;
 
     int sockfd_comm = socket(AF_INET, SOCK_STREAM, 0);
     int sockfd_data = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd_comm < 0 || sockfd_data < 0)
     {
-        perror("socket");
+        log_message = "ERROR: socket";
+        log_to_file(LOG_FILE_PATH, log_message, -1);
         exit(EXIT_FAILURE);
     }
 
@@ -99,12 +102,14 @@ int main()
     command_server.sin_port = htons(COMMAND_PORT);
     if (setsockopt(sockfd_comm, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
     {
-        perror("setsockopt");
+        log_message = "ERROR: setsockopt";
+        log_to_file(LOG_FILE_PATH, log_message, -1);
         exit(EXIT_FAILURE);
     }
     if (bind(sockfd_comm, (struct sockaddr *)&command_server, sizeof(command_server)) < 0)
     {
-        perror("bind");
+        log_message = "ERROR: bind";
+        log_to_file(LOG_FILE_PATH, log_message, -1);
         exit(EXIT_FAILURE);
     }
     listen(sockfd_comm, MAX_CLIENTS);
@@ -115,17 +120,21 @@ int main()
     data_server.sin_port = htons(DATA_PORT);
     if (setsockopt(sockfd_data, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
     {
-        perror("setsockopt");
+        log_message = "ERROR: setsockopt";
+        log_to_file(LOG_FILE_PATH, log_message, -1);
         exit(EXIT_FAILURE);
     }
     if (bind(sockfd_data, (struct sockaddr *)&data_server, data_srvlen) < 0)
     {
-        perror("bind");
+        log_message = "ERROR: bind";
+        log_to_file(LOG_FILE_PATH, log_message, -1);
         exit(EXIT_FAILURE);
     }
     listen(sockfd_data, MAX_CLIENTS);
 
-    cout << "Command Server Started Running on port " << COMMAND_PORT << endl;
+    log_message = "server started running on port " + to_string(COMMAND_PORT);
+    cout << log_message << endl;
+    log_to_file(LOG_FILE_PATH, log_message, -1);
 
     while (1)
     {
@@ -149,7 +158,8 @@ int main()
 
         if ((activity < 0) && (errno != EINTR))
         {
-            perror("select");
+            log_message = "ERROR: select";
+            log_to_file(LOG_FILE_PATH, log_message, -1);
             exit(EXIT_FAILURE);
         }
 
@@ -157,15 +167,20 @@ int main()
         {
             if ((command_sd = accept(sockfd_comm, (struct sockaddr *)&command_server, (socklen_t *)&command_srvlen)) < 0)
             {
-                perror("accept");
+                log_message = "ERROR: accept";
+                log_to_file(LOG_FILE_PATH, log_message, -1);
                 exit(EXIT_FAILURE);
             }
             if ((data_sd = accept(sockfd_data, (struct sockaddr *)&data_server, (socklen_t *)&data_srvlen)) < 0)
             {
-                perror("accept");
+                log_message = "ERROR: accept";
+                log_to_file(LOG_FILE_PATH, log_message, -1);
                 exit(EXIT_FAILURE);
             }
-            printf("New connection , socket fd is %d , ip is : %s , port : %d  \n", command_sd, inet_ntoa(command_server.sin_addr), ntohs(command_server.sin_port));
+
+            log_message = "client was accepted to connect";
+            log_to_file(LOG_FILE_PATH, log_message, command_sd);
+            cout << log_message << ". SocketID: " << command_sd << endl;
 
             Client new_client(command_sd, data_sd, INIT_PATH);
             DataBase::ClientManager::add(new_client);
@@ -181,7 +196,9 @@ int main()
                 if (read_size <= 0)
                 {
                     //Somebody disconnected , get his details and print
-                    cout << "Host disconnected with command socket " << sd << endl;
+                    log_message = "client disconnected";
+                    log_to_file(LOG_FILE_PATH, log_message, sd);
+                    cout << log_message << ". SocketID: " << sd << endl;
 
                     Client &client = DataBase::ClientManager::get(sd);
                     int client_command_socket = client.get_command_socket();
@@ -193,9 +210,18 @@ int main()
                 else
                 {
                     client_message[read_size] = '\0';
-                    cout << client_message << endl;
+
+                    log_message = "Request: '" + string(client_message) + "'";
+                    log_to_file(LOG_FILE_PATH, log_message, sd);
+                    cout << "SocketID: " << sd << "\t # " << log_message << endl;
+
                     vector<string> response = CommandHandler::handle(client_message, sd);
                     string command_response = response[0];
+
+                    log_message = "Response: '" + command_response + "'";
+                    log_to_file(LOG_FILE_PATH, log_message, sd);
+                    cout << "SocketID: " << sd << "\t # " << log_message << endl;
+
                     send(sd, command_response.c_str(), command_response.length(), 0);
                     if (response.size() > 1)
                     {

@@ -73,6 +73,9 @@ vector<string> CommandHandler::user(string request, int command_sd)
     Client &client = DataBase::ClientManager::get(command_sd);
     client.bind_to_user(username);
 
+    string log_message = "client was bound to user '" + username + "'";
+    log_to_file(LOG_FILE_PATH, log_message, command_sd);
+
     return vector<string>{Responses::USER_OKAY};
 }
 
@@ -98,6 +101,10 @@ vector<string> CommandHandler::pass(string request, int command_sd)
         return vector<string>{Responses::INVALID_USER_PASS};
 
     client.authenticate();
+
+    string log_message = "client logged in successfully to account of user '" + username + "'";
+    log_to_file(LOG_FILE_PATH, log_message, command_sd);
+
     return vector<string>{Responses::CORRECT_PASS};
 }
 
@@ -112,7 +119,8 @@ vector<string> CommandHandler::pwd(string request, int command_sd)
         return vector<string>{Responses::NEED_LOGIN};
 
     Client &client = DataBase::ClientManager::get(command_sd);
-    return vector<string>{Responses::PWD_CODE + client.get_current_path()};
+    string relative_path = fs::relative(fs::canonical(client.get_current_path()), INIT_PATH).string();
+    return vector<string>{Responses::PWD_CODE + relative_path};
 }
 
 vector<string> CommandHandler::mkd(string request, int command_sd)
@@ -128,14 +136,20 @@ vector<string> CommandHandler::mkd(string request, int command_sd)
     fs::path requested_path = request_parts[1];
 
     Client &client = DataBase::ClientManager::get(command_sd);
+    string username = client.get_username();
     fs::path current_path = client.get_current_path();
 
     fs::path final_path = current_path / requested_path;
 
     error_code ec;
-    if (fs::create_directory(final_path, ec))
-        return vector<string>{Responses::MKD_CODE + fs::canonical(final_path).string() + " created."};
-    return vector<string>{Responses::ERROR};
+    if (!fs::create_directory(final_path, ec))
+        return vector<string>{Responses::ERROR};
+    
+    string relative_path = fs::relative(fs::canonical(final_path), INIT_PATH).string();
+    string log_message = "client(user '" + username +"') created directory " + relative_path;
+    log_to_file(LOG_FILE_PATH, log_message, command_sd);
+
+    return vector<string>{Responses::MKD_CODE + relative_path + " created."};
 }
 
 vector<string> CommandHandler::dele(string request, int command_sd)
@@ -167,7 +181,6 @@ vector<string> CommandHandler::dele(string request, int command_sd)
     if (flag == "-f" && fs::is_directory(final_path, ec))
         return vector<string>{Responses::ERROR};
 
-    cout << final_path << endl;
     if (flag == "-d" && !fs::is_directory(final_path, ec))
         return vector<string>{Responses::ERROR};
 
@@ -179,10 +192,13 @@ vector<string> CommandHandler::dele(string request, int command_sd)
 
     uintmax_t num;
     error_code remove_ec;
-    if ((num = fs::remove_all(final_path, remove_ec)) > 0)
-        return vector<string>{Responses::DELE_CODE + relative_to_init_path.string() + " deleted."};
+    if ((num = fs::remove_all(final_path, remove_ec)) <= 0)
+        return vector<string>{Responses::ERROR};
+    
+    string log_message = "client(user '" + username + "') deleted " + relative_to_init_path.string();
+    log_to_file(LOG_FILE_PATH, log_message, command_sd);
 
-    return vector<string>{Responses::ERROR};
+    return vector<string>{Responses::DELE_CODE + relative_to_init_path.string() + " deleted."};
 }
 
 vector<string> CommandHandler::ls(string request, int command_sd)
@@ -219,6 +235,7 @@ vector<string> CommandHandler::cwd(string request, int command_sd)
         return vector<string>{Responses::NEED_LOGIN};
 
     Client &client = DataBase::ClientManager::get(command_sd);
+    string username = client.get_username();
     fs::path current_path = client.get_current_path();
 
     fs::path final_path;
@@ -235,6 +252,11 @@ vector<string> CommandHandler::cwd(string request, int command_sd)
         return vector<string>{Responses::ERROR};
 
     client.set_current_path(fs::canonical(final_path).string());
+
+    string relative_path = fs::relative(fs::canonical(final_path), INIT_PATH).string();
+    string log_message = "client(user '" + username + "') changed his/her directory to " + relative_path;
+    log_to_file(LOG_FILE_PATH, log_message, command_sd);
+
     return vector<string>{Responses::SUCCESSFUL_CHANGE};
 }
 
@@ -271,6 +293,11 @@ vector<string> CommandHandler::rename(string request, int command_sd)
 
     if (ec)
         return vector<string>{Responses::ERROR};
+    
+    string from_relative = relative_to_init_path.string();
+    string to_relative = fs::relative(fs::canonical(abs_to), INIT_PATH).string();
+    string log_message = "client(user '" + username + "') renamed '" + from_relative + "' to '" + to_relative + "'";
+    log_to_file(LOG_FILE_PATH, log_message, command_sd);
 
     return vector<string>{Responses::SUCCESSFUL_CHANGE};
 }
@@ -327,6 +354,9 @@ vector<string> CommandHandler::quit(string request, int command_sd)
         return vector<string>{Responses::ERROR};
     Client &client = DataBase::ClientManager::get(command_sd);
     client.logout();
+
+    string log_message = "client logged out from his/her account";
+    log_to_file(LOG_FILE_PATH, log_message, command_sd);
 
     return vector<string>{Responses::SUCCESSFUL_QUIT};
 }
