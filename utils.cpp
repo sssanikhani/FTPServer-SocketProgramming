@@ -52,7 +52,7 @@ void log_to_file(const string &path, const string &message, int sd)
     string final_log = time_str;
     if (sd > 0)
         final_log += " SocketID: " + to_string(sd);
-    final_log += " #" + message + "\n";
+    final_log += "\t # " + message + "\n";
     
     fstream log_file;
     log_file.open(path, ios::app);
