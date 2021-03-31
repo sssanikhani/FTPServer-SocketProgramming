@@ -46,10 +46,14 @@ void log_to_file(const string &path, const string &message, int sd)
     char time_char[100];
     time_t now = time(NULL);
     tm *ltm = localtime(&now);
-    strftime(time_char, sizeof(time_char), "%c", ltm);
+    strftime(time_char, sizeof(time_char), "[%c]", ltm);
     string time_str = time_char;
 
-    string final_log = "[" + time_str + "] SocketID: " + to_string(sd) + " #" + message + "\n";
+    string final_log = time_str;
+    if (sd > 0)
+        final_log += " SocketID: " + to_string(sd);
+    final_log += " #" + message + "\n";
+    
     fstream log_file;
     log_file.open(path, ios::app);
     log_file << final_log;
