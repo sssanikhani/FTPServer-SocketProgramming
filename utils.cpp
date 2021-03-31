@@ -2,6 +2,8 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <ctime>
+#include <iostream> //! REMOVE THIS
 #include "utils.hpp"
 using namespace std;
 
@@ -37,4 +39,19 @@ string file_to_string(const string &path)
         return "ERROR: can not read file";
     ss << input_file.rdbuf();
     return ss.str();
+}
+
+void log_to_file(const string &path, const string &message, int sd)
+{
+    char time_char[100];
+    time_t now = time(NULL);
+    tm *ltm = localtime(&now);
+    strftime(time_char, sizeof(time_char), "%c", ltm);
+    string time_str = time_char;
+
+    string final_log = "[" + time_str + "] SocketID: " + to_string(sd) + " #" + message + "\n";
+    fstream log_file;
+    log_file.open(path, ios::app);
+    log_file << final_log;
+    log_file.close();
 }
