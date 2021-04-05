@@ -17,11 +17,11 @@ server: server.o utils.o User.o Client.o DataBase.o CommandHandler.o Responses.o
 server.o:
 	$(CC) $(ISO) -c server.cpp -o server.o
 
-client: client.o utils.o
-	$(CC) $(ISO) -o client client.o utils.o
+client: client-side.o utils.o
+	$(CC) $(ISO) -o client client-side.o utils.o
 
-client.o:
-	$(CC) $(ISO) -c client.cpp -o client.o
+client-side.o:
+	$(CC) $(ISO) -c client-side.cpp -o client-side.o
 
 utils.o:
 	$(CC) $(ISO) -c utils.cpp -o utils.o
