@@ -7,7 +7,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include <nlohmann/json.hpp>
+#include "json.hpp"
 #include "utils.hpp"
 
 #define CONFIG_FILE_PATH "config.json"
